@@ -1,6 +1,6 @@
 
 export const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  apiKey: "AIzaSyDpEibqcVAKY6W4TX4NKuaonSCy-MbinAs",
   authDomain: "absurdity-v2.firebaseapp.com",
   databaseURL: "https://absurdity-v2-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "absurdity-v2",
