@@ -1,6 +1,6 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getAuth,signInAnonymously,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {getDatabase,ref,onValue,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import {getDatabase,ref,get,onValue,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 import {firebaseConfig} from "./firebase-config.js";
 import {QUESTIONS} from "./questions.js";
 const $=id=>document.getElementById(id);
@@ -40,6 +40,15 @@ async function join(code){
     const name=persistName();code=clean(code).toUpperCase();
     if(!/^[A-Z2-9]{6}$/.test(code))throw Error("Enter a valid 6-character room code.");
     const r=ref(db,"rooms/"+code);
+    const existingRoom = (await get(r)).val();
+
+if (!existingRoom) {
+  throw Error("Room not found. Check the room code.");
+}
+
+if (existingRoom.phase !== "lobby") {
+  throw Error("This game has already started.");
+}
     let reason="Room does not exist or has already started.";
     const result=await runTransaction(r,v=>{
       if(!v||v.phase!=="lobby"){return}
