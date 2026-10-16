@@ -79,7 +79,7 @@ async function join(code) {
 }
 
 function newRound(v){
-  const used=v.used||{};let choices=QUESTIONS.map((_,i)=>i).filter(i=>!used[i]);
+    const used=v.used ||= {};
   if(!choices.length){v.used={};choices=QUESTIONS.map((_,i)=>i)}
   const index=choices[Math.floor(Math.random()*choices.length)];
   v.used[index]=true;v.questionIndex=index;v.round=(v.round||0)+1;
