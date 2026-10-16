@@ -1,9 +1,10 @@
-// Paste your Firebase WEB app config below (Firebase Console > Project settings > Your apps).
-// This is a public client configuration, not an admin secret.
+
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://PASTE_DATABASE_URL",
-  projectId: "PASTE_PROJECT_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  authDomain: "absurdity-v2.firebaseapp.com",
+  databaseURL: "https://absurdity-v2-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "absurdity-v2",
+  storageBucket: "absurdity-v2.firebasestorage.app",
+  messagingSenderId: "587149836798",
+  appId: "1:587149836798:web:64e66cb430a9cdf35ec0af"
 };
