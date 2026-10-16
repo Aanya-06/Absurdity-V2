@@ -1,6 +1,6 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getAuth,signInAnonymously,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {getDatabase,ref,get,onValue,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import {getDatabase,ref,get,set,onValue,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 import {firebaseConfig} from "./firebase-config.js";
 import {QUESTIONS} from "./questions.js";
 const $=id=>document.getElementById(id);
@@ -34,33 +34,50 @@ async function create(){
     setupRoom(code);
   }finally{busy=false}
 }
-async function join(code){
-  if(busy)return;busy=true;
-  try{
-    const name=persistName();code=clean(code).toUpperCase();
-    if(!/^[A-Z2-9]{6}$/.test(code))throw Error("Enter a valid 6-character room code.");
-    const r=ref(db,"rooms/"+code);
-    const existingRoom = (await get(r)).val();
 
-if (!existingRoom) {
-  throw Error("Room not found. Check the room code.");
-}
+async function join(code) {
+  if (busy) return;
+  busy = true;
 
-if (existingRoom.phase !== "lobby") {
-  throw Error("This game has already started.");
-}
-    let reason="Room does not exist or has already started.";
-    const result=await runTransaction(r,v=>{
-      if(!v||v.phase!=="lobby"){return}
-      v.players ||= {};
-      if(!v.players[uid]&&keyOf(v.players).length>=12){reason="Room is full (12 players).";return}
-      v.players[uid]={name,score:v.players[uid]?.score||0};
-      return v;
-    },{applyLocally:false});
-    if(!result.committed)throw Error(reason);
+  try {
+    const name = persistName();
+    code = clean(code).toUpperCase();
+
+    if (!/^[A-Z2-9]{6}$/.test(code)) {
+      throw Error("Enter a valid 6-character room code.");
+    }
+
+    const r = ref(db, "rooms/" + code);
+    const snapshot = await get(r);
+
+    if (!snapshot.exists()) {
+      throw Error("Room not found. Check the room code.");
+    }
+
+    const existingRoom = snapshot.val();
+
+    if (existingRoom.phase !== "lobby") {
+      throw Error("This game has already started.");
+    }
+
+    const players = existingRoom.players || {};
+
+    if (!players[uid] && Object.keys(players).length >= 12) {
+      throw Error("Room is full (12 players).");
+    }
+
+    await set(ref(db, "rooms/" + code + "/players/" + uid), {
+      name: name,
+      score: players[uid]?.score || 0
+    });
+
     setupRoom(code);
-  }finally{busy=false}
+
+  } finally {
+    busy = false;
+  }
 }
+
 function newRound(v){
   const used=v.used||{};let choices=QUESTIONS.map((_,i)=>i).filter(i=>!used[i]);
   if(!choices.length){v.used={};choices=QUESTIONS.map((_,i)=>i)}
